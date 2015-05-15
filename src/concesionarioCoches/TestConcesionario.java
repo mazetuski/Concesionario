@@ -5,10 +5,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 
+import concesionarioCoches.Coche;
+import concesionarioCoches.Color;
+import concesionarioCoches.Concesionario;
+import concesionarioCoches.Fichero;
+import concesionarioCoches.Modelo;
 import utiles.Menu;
 import utiles.Teclado;
-import concesionarioCoches.Colores;
-import concesionarioCoches.Modelo;
 
 /**
  * Queremos modelar un concesionario de coches en Java. Nos limitaremos a las
@@ -16,16 +19,17 @@ import concesionarioCoches.Modelo;
  * Eliminar un coche (por matrícula), mostrar un coche (por matrícula), mostrar
  * coches (todo el concesionario)
  * 
- * @author MaríaLourdes
+ * @author Miguel &Aacute;ngel Zamora Blanco
  * 
  */
+@SuppressWarnings("serial")
 public class TestConcesionario extends Concesionario implements Serializable {
 	static Menu menu = new Menu("Concesionario de coches", new String[] {
 			"Alta Coche", "Baja Coche", "Mostrar Coche",
 			"Mostrar concesionario", "Contar coches del concesionario",
 			"Mostrar coches de un color", "Ficheros", "Salir" });
 	private static Menu menuColores = new Menu("Colores de los coches",
-			Colores.generarOpcionesMenu());
+			Color.generarOpcionesMenu());
 	private static Menu menuModelos = new Menu("Modelos de los coches",
 			Modelo.generarOpcionesMenu());
 	private static Menu menuFicheros = new Menu("Ficheros", new String[] {
@@ -33,6 +37,8 @@ public class TestConcesionario extends Concesionario implements Serializable {
 	static Concesionario concesionario = new Concesionario();
 	private static boolean modificado;
 	private static File selectedFile;
+	@SuppressWarnings("unused")
+	private static Menu menuGuardarCambios;
 
 	public static void main(String[] args) throws FileNotFoundException,
 			IOException, ClassNotFoundException {
@@ -68,35 +74,41 @@ public class TestConcesionario extends Concesionario implements Serializable {
 	}
 
 	private static void getCoche() {
-		Coche coche = concesionario.get(Teclado
-				.leerCadena("Introduce la matrícula"));
-		if (coche == null)
-			System.out.println("No existe el coche en el concesionario.");
-		else
+		Coche coche;
+		try {
+			coche = concesionario.get(Teclado
+					.leerCadena("Introduce la matrícula"));
 			System.out.println(coche);
+		} catch (MatriculaNoValidaException | CocheNoExisteException e) {
+			System.out.println("No existe el coche en el concesionario.");
+		}
+
 	}
 
 	private static void eliminarCoche() {
-		if (concesionario
-				.eliminar(Teclado.leerCadena("Introduce la matrícula"))) {
+		try {
+			concesionario
+					.eliminar(Teclado.leerCadena("Introduce la matrícula"));
 			System.out.println("Coche eliminado");
-			setModificado(true);
-		} else
+			asignarModificado(true);
+		} catch (MatriculaNoValidaException | CocheNoExisteException e) {
 			System.out.println("No se ha podido eliminar");
+			e.printStackTrace();
+		}
 	}
 
 	private static void annadirCoche() {
-		if (concesionario.annadir(Teclado.leerCadena("Introduce la matrícula"),
-				pedirColor(), pedirModelo())) {
+		try {
+			concesionario.annadir(Teclado.leerCadena("Introduce la matrícula"),
+					pedirColor(), pedirModelo());
 			System.out.println("Coche añadido con éxito");
-			setModificado(true);
-		} else
+			asignarModificado(true);
+
+		} catch (MatriculaNoValidaException | ColorNoValidoException
+				| ModeloNoValidoException | CocheYaExistenteException e) {
 			System.out.println("No se ha podido añadir");
-	}
-
-	private static void setModificado(boolean b) {
-		modificado = b;
-
+			e.printStackTrace();
+		}
 	}
 
 	private static Modelo pedirModelo() {
@@ -107,9 +119,9 @@ public class TestConcesionario extends Concesionario implements Serializable {
 		return arrModelos[opcion - 1];
 	}
 
-	private static Colores pedirColor() {
+	private static Color pedirColor() {
 		int opcion = menuColores.gestionar();
-		Colores[] arrColores = Colores.getValues();
+		Color[] arrColores = Color.getValues();
 		if (opcion == arrColores.length + 1)
 			return null;
 		return arrColores[opcion - 1];
@@ -138,6 +150,7 @@ public class TestConcesionario extends Concesionario implements Serializable {
 
 	private static void abrir() throws FileNotFoundException,
 			ClassNotFoundException, IOException {
+		guardarSiModificado();
 		try {
 			File fichero = new File(
 					Teclado.leerCadena("Dame el nombre del archivo: "));
@@ -150,54 +163,54 @@ public class TestConcesionario extends Concesionario implements Serializable {
 		}
 	}
 
-	   private static void guardarComo() {
-	        try {
-	            File file = new File(
-	                    Teclado.leerCadena("Introduce el nombre del fichero a guardar: "));
-	            file = Fichero.annadirExtension(file);
-	            if (Fichero.confirmarSiExiste(file)) {
-	                char caracter = Teclado
-	                        .leerCaracter("El fichero ya existe. ¿Desea sobreescribirlo? (s/n)");
-	                switch (caracter) {
-	                case 'n':
-	                case 'N':
-	                    return;
-	                }
-	            }
-	            Fichero.guardar(file, concesionario);
-	            setModificado(false);
-	            setSelectedFile(file);
-	        } catch (IOException e) {
-	            System.out.println("El sistema no puede guardar el fichero.");
-	        }
-	    }
+	private static void guardarComo() {
+		try {
+			File file = new File(
+					Teclado.leerCadena("Introduce el nombre del fichero a guardar: "));
+			file = Fichero.annadirExtension(file);
+			if (Fichero.confirmarExistencia(file)) {
+				char caracter = Teclado
+						.leerCaracter("El fichero ya existe. ¿Desea sobreescribirlo? (s/n)");
+				switch (caracter) {
+				case 'n':
+				case 'N':
+					return;
+				}
+			}
 
-	   private static void guardar() {
-	        if (getSelectedFile() == null)
-	            guardarComo();
-	        else {
-	            try {
-	                Fichero.guardar(getSelectedFile(), concesionario);
-	                setModificado(false);
-	            } catch (IOException e) {
-	                System.out.println("El sistema no puede guardar el fichero.");
-	            }
-	        }
-	    }
+			Fichero.guardar(concesionario, file);
+			asignarModificado(false);
+			setSelectedFile(file);
+		} catch (IOException e) {
+			System.out.println("El sistema no puede guardar el fichero.");
+		}
+	}
 
+	private static void guardar() throws FileNotFoundException, IOException {
+		if (getSelectedFile() == null)
+			guardarComo();
+		else {
+			try {
+				Fichero.guardar(concesionario, getSelectedFile());
+				asignarModificado(false);
+			} catch (IOException e) {
+				System.out.println("No se ha podido guardar.");
+			}
+		}
+	}
 
 	private static void nuevo() throws FileNotFoundException, IOException {
-		if (getModificado() == true)
+		if (estaModificado() == true)
 			guardarSiConfirmacion();
-		setModificado(false);
+		asignarModificado(false);
 		concesionario = new Concesionario();
 		setSelectedFile(null);
 	}
 
 	private static boolean guardarSiConfirmacion()
 			throws FileNotFoundException, IOException {
-		if (isModificado() == true) {
-			char respuesta = Teclado.leerCaracter("Desea guardarlo? s/n : ");
+		if (estaModificado() == true) {
+			char respuesta = Teclado.leerCaracter("¿Desea guardarlo? s/n : ");
 			switch (respuesta) {
 			case 's':
 			case 'S':
@@ -211,12 +224,20 @@ public class TestConcesionario extends Concesionario implements Serializable {
 		return false;
 	}
 
-	private static boolean isModificado() {
-		return modificado;
+	private static boolean guardarSiModificado() throws FileNotFoundException,
+			IOException {
+		if (estaModificado()) {
+			guardarSiConfirmacion();
+		}
+		return false;
 	}
 
-	private static boolean getModificado() {
+	private static void asignarModificado(boolean b) {
+		modificado = b;
 
+	}
+
+	public static boolean estaModificado() {
 		return modificado;
 	}
 

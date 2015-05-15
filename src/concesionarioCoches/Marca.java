@@ -1,7 +1,9 @@
 package concesionarioCoches;
+
 /**
  * Marcas de los coches del concesionario
- * @author MaríaLourdes
+ * 
+ * @author Miguel &Aacute;ngel Zamora Blanco
  *
  */
 public enum Marca {

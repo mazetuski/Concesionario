@@ -1,5 +1,9 @@
 package concesionarioCoches;
-
+/**
+ * 
+ * @author Miguel &Aacute;ngel Zamora Blanco
+ *
+ */
 public enum Modelo {
 
 	SERIE1(Marca.BMW),

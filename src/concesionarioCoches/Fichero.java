@@ -1,5 +1,6 @@
 package concesionarioCoches;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,30 +8,34 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import concesionarioCoches.Concesionario;
+import utiles.Teclado;
 
+/**
+ * 
+ * @author Miguel &Aacute;ngel Zamora Blanco
+ *
+ */
+@SuppressWarnings({ "serial", "unused" })
 public class Fichero implements Serializable {
 	public static File fichero = new File("Sin-titulo.obj");
 
-
-	public static void guardar(File file, Concesionario concesionario)
-			throws IOException {
-		file = annadirExtension(file);
-		try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(
-				new BufferedOutputStream(new FileOutputStream(file, false)))) {
-			objectOutputStream.writeObject(concesionario);
+	static void guardar(Object object, File archivo) throws IOException {
+		archivo = annadirExtension(archivo);
+		try (ObjectOutputStream salida = new ObjectOutputStream(
+				new BufferedOutputStream(new FileOutputStream(archivo, false)))) {
+			salida.writeObject(object);
 		}
+
 	}
 
 	public static Object leer(File archivo) throws FileNotFoundException,
 			IOException, ClassNotFoundException {
 		archivo = annadirExtension(archivo);
-		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(
-				archivo))) {
+		try (ObjectInputStream ois = new ObjectInputStream(
+				new BufferedInputStream(new FileInputStream(archivo)))) {
 			return (Object) ois.readObject();
 		}
 	}
@@ -42,7 +47,7 @@ public class Fichero implements Serializable {
 		return archivo;
 	}
 
-	public static boolean confirmarSiExiste(File archivo) {
+	public static boolean confirmarExistencia(File archivo) {
 		archivo = annadirExtension(archivo);
 		return archivo.exists();
 	}

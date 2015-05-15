@@ -3,49 +3,64 @@ package concesionarioCoches;
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
+/**
+ * 
+ * @author Miguel &Aacute;ngel Zamora Blanco
+ *
+ */
+@SuppressWarnings("serial")
 public class Coche implements Serializable {
 	private String matricula;
-	private Colores color;
+	private Color color;
 	private Modelo modelo;
 	static final private Pattern patternMatricula = Pattern
 			.compile("^\\d{4}[ -]?[[B-Z]&&[^QEIOU]]{3}$");
 
-	private Coche(String matricula, Colores color, Modelo modelo) {
+	Coche(String matricula, Color color, Modelo modelo)
+			throws MatriculaNoValidaException, ColorNoValidoException,
+			ModeloNoValidoException {
 		super();
 		setMatricula(matricula);
 		setColor(color);
 		setModelo(modelo);
 	}
 
-	private Coche(String matricula) {
+	Coche(String matricula) throws MatriculaNoValidaException {
 		setMatricula(matricula);
 	}
 
-	static Coche instanciarCoche(String matricula, Colores color, Modelo modelo) {
-		if (esValida(matricula) && color != null && modelo != null)
-			return new Coche(matricula, color, modelo);
+	static Coche instanciarCoche(String matricula, Color color, Modelo modelo)
+			throws MatriculaNoValidaException, ColorNoValidoException,
+			ModeloNoValidoException {
+		new Coche(matricula, color, modelo);
 		return null;
 	}
 
-	static Coche instanciarCoche(String matricula) {
+	static Coche instanciarCoche(String matricula)
+			throws MatriculaNoValidaException {
 		if (esValida(matricula))
 			return new Coche(matricula);
 		return null;
 	}
 
-	private static boolean esValida(String matricula) {
+	public static boolean esValida(String matricula) {
 		return patternMatricula.matcher(matricula).matches();
 	}
 
-	private void setMatricula(String matricula) {
-		this.matricula = matricula;
+	private void setMatricula(String matricula)
+			throws MatriculaNoValidaException {
+		if (esValida(matricula))
+			this.matricula = matricula;
+		else
+			throw new MatriculaNoValidaException("La matrícula no es válida");
+
 	}
 
-	Colores getColor() {
+	public Color getColor() {
 		return color;
 	}
 
-	private void setColor(Colores color) {
+	private void setColor(Color color) {
 		this.color = color;
 	}
 
@@ -98,6 +113,14 @@ public class Coche implements Serializable {
 	public String toString() {
 		return "\nCoche [matricula=" + matricula + ", color=" + color
 				+ ", modelo=" + modelo + "]";
+	}
+
+	public Modelo getModelo() {
+		return modelo;
+	}
+
+	public String getMatricula() {
+		return matricula;
 	}
 
 }
