@@ -1,10 +1,13 @@
 package concesionarioCoches;
+
+import java.io.Serializable;
+
 /**
+ * Modelo de los coches del concesionario
  * 
  * @author Miguel &Aacute;ngel Zamora Blanco
- *
  */
-public enum Modelo {
+public enum Modelo implements Serializable{
 
 	SERIE1(Marca.BMW),
 
@@ -19,6 +22,7 @@ public enum Modelo {
 	IBIZA(Marca.SEAT),
 
 	TOLEDO(Marca.SEAT);
+	
 	private Marca marca;
 
 	private Modelo(Marca marca) {
@@ -30,7 +34,7 @@ public enum Modelo {
 	}
 
 	public String toString() {
-		return name() + ", " + getMarca();
+		return name();
 
 	}
 

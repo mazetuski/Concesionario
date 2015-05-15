@@ -1,8 +1,10 @@
+
 /**
- * 
+ * @author Miguel &Aacute;ngel Zamora Blanco
+ * @version 1.0
+ *
  */
 /**
- * @author d14zablm
- *
+ * Paquete Utiles.
  */
 package utiles;

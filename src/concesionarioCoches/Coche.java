@@ -2,65 +2,68 @@ package concesionarioCoches;
 
 import java.io.Serializable;
 import java.util.regex.Pattern;
-
 /**
+ * Clase Coche
  * 
  * @author Miguel &Aacute;ngel Zamora Blanco
- *
  */
-@SuppressWarnings("serial")
 public class Coche implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String matricula;
-	private Color color;
+
+	public String getMatricula() {
+		return matricula;
+	}
+
+	private Colores color;
 	private Modelo modelo;
+
+	public Modelo getModelo() {
+		return modelo;
+	}
+
 	static final private Pattern patternMatricula = Pattern
 			.compile("^\\d{4}[ -]?[[B-Z]&&[^QEIOU]]{3}$");
 
-	Coche(String matricula, Color color, Modelo modelo)
-			throws MatriculaNoValidaException, ColorNoValidoException,
-			ModeloNoValidoException {
+	private Coche(String matricula, Colores color, Modelo modelo) {
 		super();
 		setMatricula(matricula);
 		setColor(color);
 		setModelo(modelo);
 	}
 
-	Coche(String matricula) throws MatriculaNoValidaException {
+	private Coche(String matricula) {
 		setMatricula(matricula);
 	}
 
-	static Coche instanciarCoche(String matricula, Color color, Modelo modelo)
-			throws MatriculaNoValidaException, ColorNoValidoException,
-			ModeloNoValidoException {
-		new Coche(matricula, color, modelo);
+	static Coche instanciarCoche(String matricula, Colores color, Modelo modelo) {
+		if (esValida(matricula) && color != null && modelo != null)
+			return new Coche(matricula, color, modelo);
 		return null;
 	}
 
-	static Coche instanciarCoche(String matricula)
-			throws MatriculaNoValidaException {
+	static Coche instanciarCoche(String matricula) {
 		if (esValida(matricula))
 			return new Coche(matricula);
 		return null;
 	}
 
-	public static boolean esValida(String matricula) {
+	private static boolean esValida(String matricula) {
 		return patternMatricula.matcher(matricula).matches();
 	}
 
-	private void setMatricula(String matricula)
-			throws MatriculaNoValidaException {
-		if (esValida(matricula))
-			this.matricula = matricula;
-		else
-			throw new MatriculaNoValidaException("La matrícula no es válida");
-
+	private void setMatricula(String matricula) {
+		this.matricula = matricula;
 	}
 
-	public Color getColor() {
+	public Colores getColor() {
 		return color;
 	}
 
-	private void setColor(Color color) {
+	private void setColor(Colores color) {
 		this.color = color;
 	}
 
@@ -111,16 +114,8 @@ public class Coche implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "\nCoche [matricula=" + matricula + ", color=" + color
-				+ ", modelo=" + modelo + "]";
-	}
-
-	public Modelo getModelo() {
-		return modelo;
-	}
-
-	public String getMatricula() {
-		return matricula;
+		return "\nCoche matricula=" + matricula + ", color=" + color
+				+ ", modelo=" + modelo +"";
 	}
 
 }
